@@ -1,0 +1,15 @@
+from fastapi import FastAPI
+
+from app.api.products import router as products_router
+from app.api.category import router as category_router
+from app.api.ingredients import router as ingredients_router
+from app.api.sizes import router as sizes_router
+from app.api.dough_type import router as dough_type_router
+
+app = FastAPI()
+
+app.include_router(products_router)
+app.include_router(category_router)
+app.include_router(ingredients_router)
+app.include_router(sizes_router)
+app.include_router(dough_type_router)

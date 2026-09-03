@@ -1,0 +1,20 @@
+from decimal import Decimal
+from sqlalchemy import UUID, Boolean, ForeignKey, Numeric
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.database.database import Base
+import uuid
+
+
+class ProductIngredient(Base):
+    __tablename__ = "product_ingredients"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    product_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("products.id"), nullable=False)
+    ingredient_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("ingredients.id"), nullable=False
+    )
+    quantity: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("0.00"))
+    is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+    product: Mapped["Product"] = relationship("Product", back_populates="ingredients")
+    ingredient: Mapped["Ingredient"] = relationship("Ingredient")
