@@ -16,6 +16,11 @@ def create_ingredient(data: IngredientCreate, session: Session = Depends(get_ses
     service = IngredientsService(session)
     return service.create(data)
 
+@router.post("/list", response_model=list[IngredientResponse])
+def create_ingredients(data: list[IngredientCreate], session: Session = Depends(get_session)) -> list[Ingredient]:
+    service = IngredientsService(session)
+    return service.create_many(data)
+
 @router.get("/", response_model=list[IngredientResponse])
 def get_ingredients(session: Session = Depends(get_session)) -> list[Ingredient]:
     service = IngredientsService(session)

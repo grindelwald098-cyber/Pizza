@@ -23,6 +23,13 @@ class IngredientsRepository:
         self.session.refresh(ingredient)
         return ingredient
 
+    def create_many(self, ingredients: list[Ingredient]) -> list[Ingredient]:
+        self.session.add_all(ingredients)
+        self.session.commit()
+        for ingredient in ingredients:
+            self.session.refresh(ingredient)
+        return ingredients
+
     def delete(self, id: UUID) -> None:
         query = select(Ingredient).where(Ingredient.id == id)
         self.session.delete(self.session.scalar(query))

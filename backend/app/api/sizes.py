@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from uuid import UUID
 from app.schemas.sizes import SizeCreate, SizeResponse
@@ -26,7 +26,7 @@ def get_size_by_id(id: UUID, session: Session = Depends(get_session)) -> Size:
     service = SizesService(session)
     return service.get_by_id(id)
 
-@router.delete("/{id}", response_model=SizeResponse)
-def delete_size(id: UUID, session: Session = Depends(get_session)) -> Size:
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_size(id: UUID, session: Session = Depends(get_session)) -> None:
     service = SizesService(session)
-    return service.delete(id)
+    service.delete(id)

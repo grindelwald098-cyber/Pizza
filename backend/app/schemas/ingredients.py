@@ -1,34 +1,23 @@
 from pydantic import BaseModel
 from uuid import UUID
-
+from decimal import Decimal
+from pydantic import Field
 
 class IngredientCreate(BaseModel):
     name: str
     description: str
-    price: float
-    quantity: int
-    unit: str
+    price: Decimal = Field(
+        examples=[100.00]
+    )
     image_url: str
-    category: str
-    sub_category: str
-    brand: str
-    origin: str
-    is_organic: bool
-    is_gluten_free: bool
-    is_vegan: bool
+    is_available: bool
 
 class IngredientResponse(BaseModel):
     id: UUID
     name: str
     description: str
-    price: float
-    quantity: int
-    unit: str
+    price: Decimal = Field(
+        examples=[100.00]
+    )
     image_url: str
-    category: str
-    sub_category: str
-    brand: str
-    origin: str
-    is_organic: bool
-    is_gluten_free: bool
-    is_vegan: bool
+    is_available: bool

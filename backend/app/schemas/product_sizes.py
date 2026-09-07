@@ -2,11 +2,14 @@ from decimal import Decimal
 from uuid import UUID
 from pydantic import BaseModel
 from app.schemas.sizes import SizeResponse
+from pydantic import Field
 
 class ProductSizeResponse(BaseModel):
     id: UUID
     size: SizeResponse
-    price: Decimal
+    price: Decimal = Field(
+        examples=[100.00]
+    )
     is_available: bool
 
     model_config = {

@@ -4,6 +4,7 @@ from uuid import UUID
 from app.schemas.category import CategoryResponse
 from app.schemas.product_sizes import ProductSizeResponse
 from pydantic import BaseModel
+from pydantic import Field
 
 
 class ProductCreate(BaseModel):
@@ -12,7 +13,9 @@ class ProductCreate(BaseModel):
     slug: str
     description: str | None = None
     image_url: str | None = None
-    base_price: Decimal
+    base_price: Decimal = Field(
+        examples=[100.00]
+    )
     is_active: bool = True
     is_available: bool = True
     sizes_ids: list[UUID] | None = None
@@ -27,7 +30,9 @@ class ProductResponse(BaseModel):
     slug: str
     description: str | None
     image_url: str | None
-    base_price: Decimal
+    base_price: Decimal = Field(
+        examples=[100.00]
+    )
     is_active: bool
     is_available: bool
 

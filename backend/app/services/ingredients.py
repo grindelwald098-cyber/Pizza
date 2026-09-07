@@ -17,5 +17,15 @@ class IngredientsService:
     def create(self, data: IngredientCreate) -> Ingredient:
         return self.repository.create(data)
 
+    def create_many(self, data: list[IngredientCreate]) -> list[Ingredient]:
+        ingredients = [Ingredient(
+            name=item.name,
+            description=item.description,
+            price=item.price,
+            image_url=item.image_url,
+            is_available=item.is_available
+        ) for item in data]
+        return self.repository.create_many(ingredients)
+
     def delete(self, id: UUID) -> None:
         return self.repository.delete(id)

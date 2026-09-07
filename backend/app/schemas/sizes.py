@@ -3,11 +3,13 @@ from uuid import UUID
 
 class SizeCreate(BaseModel):
     name:str
-    diameter:int
+    value:int
+    unit:str
     sort_order:int
 
 class SizeResponse(BaseModel):
     id:UUID
     name:str
-    diameter:int
+    value:int
+    unit:str
     sort_order:int

@@ -20,3 +20,11 @@ class SizesRepository:
         self.session.commit()
         self.session.refresh(size)
         return size
+
+    def delete(self, size: Size) -> None:
+        try:
+            self.session.delete(size)
+            self.session.commit()
+        except Exception as e:
+            self.session.rollback()
+            raise e
