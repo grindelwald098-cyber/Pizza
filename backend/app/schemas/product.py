@@ -1,10 +1,14 @@
 from decimal import Decimal
 from uuid import UUID
 
-from app.schemas.category import CategoryResponse
-from app.schemas.product_sizes import ProductSizeResponse
-from pydantic import BaseModel
 from pydantic import Field
+from pydantic import BaseModel
+from app.schemas.category import CategoryResponse
+from app.schemas.product_sizes import ProductSizeCreate, ProductSizeResponse
+from app.schemas.product_ingredients import ProductIngredientCreate
+from app.schemas.dough_type import DoughTypeResponse
+from app.schemas.product_dough_types import ProductDoughTypeCreate
+from app.schemas.product_ingredients import ProductIngredientResponse
 
 
 class ProductCreate(BaseModel):
@@ -18,11 +22,9 @@ class ProductCreate(BaseModel):
     )
     is_active: bool = True
     is_available: bool = True
-    sizes_ids: list[UUID] | None = None
-    dough_type_id: UUID | None = None
-    ingredients_ids: list[UUID] | None = None
-    price_per_size: Decimal | None = None
-    is_available_per_size: bool | None = None
+    sizes: list[ProductSizeCreate] | None = None
+    dough_types: list[ProductDoughTypeCreate] | None = None
+    ingredients: list[ProductIngredientCreate] | None = None
 
 class ProductResponse(BaseModel):
     id: UUID
@@ -35,11 +37,10 @@ class ProductResponse(BaseModel):
     )
     is_active: bool
     is_available: bool
-
-    sizes: list[ProductSizeResponse]
-
     category: CategoryResponse
-
+    sizes: list[ProductSizeResponse]
+    dough_types: list[DoughTypeResponse] | None = None
+    ingredients: list[ProductIngredientResponse]
     model_config = {
         "from_attributes": True
     }

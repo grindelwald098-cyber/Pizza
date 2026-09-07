@@ -1,12 +1,21 @@
 from decimal import Decimal
 from uuid import UUID
 from pydantic import BaseModel
-from app.schemas.sizes import SizeResponse
 from pydantic import Field
 
+class ProductSizeCreate(BaseModel):
+    size_id: UUID
+    price: Decimal = Field(
+        examples=[100.00]
+    )
+    is_available: bool
+
 class ProductSizeResponse(BaseModel):
-    id: UUID
-    size: SizeResponse
+    id:UUID
+    name:str
+    value:int
+    unit:str
+    sort_order:int
     price: Decimal = Field(
         examples=[100.00]
     )

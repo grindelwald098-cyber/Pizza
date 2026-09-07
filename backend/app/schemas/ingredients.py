@@ -21,3 +21,7 @@ class IngredientResponse(BaseModel):
     )
     image_url: str
     is_available: bool
+
+    model_config = {
+        "from_attributes": True
+    }

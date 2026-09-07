@@ -1,9 +1,11 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
 from uuid import UUID
 
 from app.database.models.product import Product
 from app.database.models.product_sizes import ProductSize
+from app.database.models.product_dough import ProductDough
+from app.database.models.product_ingredients import ProductIngredient
 
 
 class ProductRepository:
@@ -11,12 +13,21 @@ class ProductRepository:
     def __init__(self, session: Session):
         self.session = session
 
+    @staticmethod
+    def _load_options():
+        return (
+            selectinload(Product.category),
+            selectinload(Product.sizes).selectinload(ProductSize.size),
+            selectinload(Product.doughs).selectinload(ProductDough.dough_type),
+            selectinload(Product.ingredients).selectinload(ProductIngredient.ingredient),
+        )
+
     def get_all(self) -> list[Product]:
-        query = select(Product)
-        return self.session.scalars(query).all()
+        query = select(Product).options(*self._load_options())
+        return list(self.session.scalars(query).all())
 
     def get_by_id(self, id: UUID) -> Product | None:
-        query = select(Product).where(Product.id == id)
+        query = select(Product).where(Product.id == id).options(*self._load_options())
         return self.session.scalar(query)
 
     def create(self, product: Product) -> Product:
@@ -24,13 +35,6 @@ class ProductRepository:
         self.session.commit()
         self.session.refresh(product)
         return product
-        
-    def create_product_with_sizes(self, data: Product,  sizes_ids: list[UUID], price_per_size: Decimal | None = None, is_available_per_size: bool | None = None) -> None:
-        for size_id in sizes_ids:
-            product_size = ProductSize(product_id=data.id, size_id=size_id, price=price_per_size, is_available=is_available_per_size)
-            self.session.add(product_size)
-        self.session.commit()
-
 
     def update(self, id: UUID, data: Product) -> Product:
         product = self.get_by_id(id)
@@ -46,13 +50,13 @@ class ProductRepository:
         self.session.commit()
         return product
 
-    def delete(self, id: UUID) -> None:
-        product = self.get_by_id(id)
-        if product:
+    def delete(self, product: Product) -> None:
+        try:
             self.session.delete(product)
             self.session.commit()
-            return True
-        return False
+        except Exception as e:
+            self.session.rollback()
+            raise e
 
     def add_sizes(self, id: UUID, sizes_ids: list[UUID]) -> None:
         product = self.get_by_id(id)
