@@ -27,6 +27,7 @@ def to_product_dough_type_response(product_dough: ProductDough) -> DoughTypeResp
         name=product_dough.dough_type.name,
         sort_order=product_dough.dough_type.sort_order,
         is_active=product_dough.dough_type.is_active,
+        is_default=product_dough.is_default
     )
 
 

@@ -44,3 +44,19 @@ class ProductResponse(BaseModel):
     model_config = {
         "from_attributes": True
     }
+
+class ProductUpdate(BaseModel):
+    name: str | None = None
+    slug: str | None = None
+    description: str | None = None
+    image_url: str | None = None
+    base_price: Decimal | None = None
+    is_active: bool | None = None
+    is_available: bool | None = None
+
+
+class ProductUpdateDoughTypes(BaseModel):
+    dough_types_ids: list[UUID]
+
+class ProductUpdateIngredients(BaseModel):
+    ingredients_ids: list[UUID]

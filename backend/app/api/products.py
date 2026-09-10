@@ -3,9 +3,15 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 
 from app.database.database import get_session
-from app.schemas.product import ProductCreate, ProductResponse
-from app.services.product import ProductService
-
+from app.schemas.product import (
+    ProductCreate,
+    ProductResponse,
+    ProductUpdate,
+    ProductUpdateIngredients,
+)
+from app.schemas.product_sizes import ProductSizeCreate
+from app.schemas.product_dough_types import ProductDoughTypeCreate
+from app.services.product import ProductService 
 
 router = APIRouter(
     prefix="/products",
@@ -35,3 +41,23 @@ def get_product_by_id(id: UUID, session: Session = Depends(get_session)) -> Prod
 def delete_product(id: UUID, session: Session = Depends(get_session)) -> None:
     service = ProductService(session)
     service.delete(id)
+
+@router.patch("/{id}", response_model=ProductResponse)
+def update_product(id: UUID, data: ProductUpdate, session: Session = Depends(get_session)) -> ProductResponse:
+    service = ProductService(session)
+    return service.update_product(id, data)
+
+@router.patch("/{id}/sizes", response_model=ProductResponse)
+def update_sizes_to_product(id: UUID, data: list[ProductSizeCreate], session: Session = Depends(get_session)) -> ProductResponse:
+    service = ProductService(session)
+    return service.update_sizes_to_product(id, data)
+
+@router.patch("/{id}/dough_types", response_model=ProductResponse)
+def update_dough_types_to_product(id: UUID, data: list[ProductDoughTypeCreate] , session: Session = Depends(get_session)) -> ProductResponse:
+    service = ProductService(session)
+    return service.update_dough_types_to_product(id, data)
+
+@router.patch("/{id}/ingredients", response_model=ProductResponse)
+def update_ingredients_to_product(id: UUID, ingredients_ids: ProductUpdateIngredients, session: Session = Depends(get_session)) -> ProductResponse:
+    service = ProductService(session)
+    return service.update_ingredients_to_product(id, ingredients_ids)

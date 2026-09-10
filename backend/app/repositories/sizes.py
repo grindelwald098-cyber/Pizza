@@ -15,6 +15,12 @@ class SizesRepository:
         query = select(Size).where(Size.id == id)
         return self.session.scalar(query)
 
+    def get_existing_ids(self, ids: list[UUID]) -> set[UUID]:
+        if not ids:
+            return set()
+        query = select(Size.id).where(Size.id.in_(ids))
+        return set(self.session.scalars(query).all())
+
     def create(self, size: Size) -> Size:
         self.session.add(size)
         self.session.commit()

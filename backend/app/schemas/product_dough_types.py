@@ -6,12 +6,12 @@ from pydantic import Field
 
 class ProductDoughTypeCreate(BaseModel):
     dough_type_id: UUID
-    is_default: bool
+    is_default: bool | None = None
 
 class ProductDoughTypeResponse(BaseModel):
     id: UUID
     dough_type: DoughTypeResponse
-    is_default: bool
+    is_default: bool 
 
     model_config = {
         "from_attributes": True

@@ -6,6 +6,9 @@ import uuid
 
 
 class ProductSize(Base):
+    def __repr__(self) -> str:
+        return f"<ProductSize id={self.id} product_id={self.product_id} size_id={self.size_id} price={self.price} is_available={self.is_available}>"
+
     __tablename__ = "product_sizes"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

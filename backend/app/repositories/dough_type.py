@@ -14,11 +14,17 @@ class DoughTypeRepository:
         query = select(DoughType)
         return self.session.scalars(query).all()  
 
-    def get_by_id(self, id: UUID) -> DoughType: 
-        query = select(DoughType).where(DoughType.id == id) 
+    def get_by_id(self, id: UUID) -> DoughType | None:
+        query = select(DoughType).where(DoughType.id == id)
         return self.session.scalar(query)
 
-    def  create(self, doughtype: DoughType) -> DoughType: 
+    def get_existing_ids(self, ids: list[UUID]) -> set[UUID]:
+        if not ids:
+            return set()
+        query = select(DoughType.id).where(DoughType.id.in_(ids))
+        return set(self.session.scalars(query).all())
+
+    def create(self, doughtype: DoughType) -> DoughType: 
         self.session.add(doughtype)    
         self.session.commit()
         self.session.refresh(doughtype)

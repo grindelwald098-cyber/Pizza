@@ -17,6 +17,12 @@ class IngredientsRepository:
         query = select(Ingredient).where(Ingredient.id == id)
         return self.session.scalar(query)
 
+    def get_existing_ids(self, ids: list[UUID]) -> set[UUID]:
+        if not ids:
+            return set()
+        query = select(Ingredient.id).where(Ingredient.id.in_(ids))
+        return set(self.session.scalars(query).all())
+
     def create(self, ingredient: Ingredient) -> Ingredient:
         self.session.add(ingredient)
         self.session.commit()
