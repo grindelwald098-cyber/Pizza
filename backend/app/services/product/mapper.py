@@ -43,6 +43,7 @@ def to_product_ingredient_response(
         is_available=product_ingredient.ingredient.is_available,
         quantity=product_ingredient.quantity,
         is_default=product_ingredient.is_default,
+        is_active=product_ingredient.is_active,
     )
 
 

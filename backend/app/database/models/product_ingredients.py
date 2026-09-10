@@ -15,6 +15,7 @@ class ProductIngredient(Base):
     )
     quantity: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("0.00"))
     is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     product: Mapped["Product"] = relationship("Product", back_populates="ingredients")
     ingredient: Mapped["Ingredient"] = relationship("Ingredient")

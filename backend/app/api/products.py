@@ -11,6 +11,8 @@ from app.schemas.product import (
 )
 from app.schemas.product_sizes import ProductSizeCreate
 from app.schemas.product_dough_types import ProductDoughTypeCreate
+from app.schemas.product_ingredients import ProductIngredientCreate
+
 from app.services.product import ProductService 
 
 router = APIRouter(
@@ -58,6 +60,6 @@ def update_dough_types_to_product(id: UUID, data: list[ProductDoughTypeCreate] ,
     return service.update_dough_types_to_product(id, data)
 
 @router.patch("/{id}/ingredients", response_model=ProductResponse)
-def update_ingredients_to_product(id: UUID, ingredients_ids: ProductUpdateIngredients, session: Session = Depends(get_session)) -> ProductResponse:
+def update_ingredients_to_product(id: UUID, data: list[ProductIngredientCreate], session: Session = Depends(get_session)) -> ProductResponse:
     service = ProductService(session)
-    return service.update_ingredients_to_product(id, ingredients_ids)
+    return service.update_ingredients_to_product(id, data)

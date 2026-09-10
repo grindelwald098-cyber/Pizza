@@ -15,6 +15,7 @@ from fastapi import status
 class ProductService:
 
     def __init__(self, session: Session):
+
         self.repository = ProductRepository(session)
         self.category_repo = CategoryRepository(session)
         self.sizes_repo = SizesRepository(session)
@@ -22,24 +23,41 @@ class ProductService:
         self.ingredients_repo = IngredientsRepository(session)
 
     def _ensure_ids_exist(self, label: str, requested: list[UUID], existing: set[UUID]) -> None:
+
         missing = set(requested) - existing
+        
         if missing:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"{label} not found: {sorted(missing, key=str)}",
             )
 
-    def get_product_by_id(self, id: UUID) -> ProductResponse | None:
+    def _get_product_or_404(self, id: UUID) -> Product:
+
         product = self.repository.get_by_id(id)
+
         if not product:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Product not found"
+            )
+
+        return product
+
+    def get_product_by_id(self, id: UUID) -> ProductResponse | None:
+
+        product = self._get_product_or_404(id)
+
         return to_product_response(product)
 
     def get_all_products(self) -> list[ProductResponse]:
+
         products = self.repository.get_all()
+
         return [to_product_response(product) for product in products]
 
     def create_product(self, data: ProductCreate) -> ProductResponse:
+
         size_ids = [s.size_id for s in (data.sizes or [])]
         dough_ids = [d.dough_type_id for d in (data.dough_types or [])]
         ingredient_ids = [i.ingredient_id for i in (data.ingredients or [])]
@@ -93,16 +111,14 @@ class ProductService:
         return to_product_response(loaded)
 
     def delete(self, id: UUID) -> None:
-        product = self.repository.get_by_id(id)
-        if not product:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        product = self._get_product_or_404(id)
+
         product.is_active = False
         self.repository.delete(product)
 
     def update_product(self, id: UUID, data: ProductUpdate) -> ProductResponse:
-        product = self.repository.get_by_id(id)
-        if not product:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        product = self._get_product_or_404(id)
+
         for field, value in data.model_dump(exclude_unset=True).items():
             setattr(product, field, value)
 
@@ -112,10 +128,7 @@ class ProductService:
 
     def update_sizes_to_product(self, id: UUID, data: list[ProductSizeCreate]) -> ProductResponse:
 
-        product = self.repository.get_by_id(id)
-
-        if not product:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+        product = self._get_product_or_404(id)
             
         product_sizes = product.sizes
 
@@ -151,12 +164,9 @@ class ProductService:
         updated = self.repository.update(product)
         return to_product_response(updated)
 
-    def update_dough_types_to_product(self, id:UUID, data: list[ProductDoughTypeCreate]) ->  ProductResponse: 
+    def update_dough_types_to_product(self, id: UUID, data: list[ProductDoughTypeCreate]) ->  ProductResponse: 
 
-        product = self.repository.get_by_id(id)
-
-        if not product:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail = "Product not found")
+        product = self._get_product_or_404(id)
 
         product_dough_types = product.doughs
         current_ids = {item.dough_type_id for item in product_dough_types}
@@ -182,3 +192,43 @@ class ProductService:
         
         updated = self.repository.update(product)
         return to_product_response(updated)
+
+    def update_ingredients_to_product(self, id: UUID, data: list[ProductIngredientCreate]) ->  ProductResponse:
+        
+        product = self._get_product_or_404(id)
+
+        product_ingredients = product.ingredients
+
+        current_ids = {item.ingredient_id for item in product_ingredients}
+        new_ids = {item.ingredient_id for item in data}
+
+        missing_ids = current_ids - new_ids
+
+        for ingredient in product_ingredients:
+            if ingredient.ingredient_id in missing_ids:
+                ingredient.is_active = False
+
+        for ingredient in data:
+            
+            if ingredient.ingredient_id in current_ids:
+                
+                for product_ingredient in product_ingredients:
+
+                    if product_ingredient.ingredient_id == ingredient.ingredient_id:
+                        product_ingredient.quantity = ingredient.quantity
+                        product_ingredient.is_default = ingredient.is_default
+                        product_ingredient.is_active = True
+                        break
+
+            else:
+                product_ingredients.append(
+                    ProductIngredient(
+                        product_id=id,
+                        ingredient_id=ingredient.ingredient_id,
+                        quantity=ingredient.quantity,
+                        is_default=ingredient.is_default,
+                    )
+                )
+
+        updated = self.repository.update(product)
+        return to_product_response(updated)   

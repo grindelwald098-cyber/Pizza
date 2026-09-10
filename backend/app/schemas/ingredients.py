@@ -11,6 +11,7 @@ class IngredientCreate(BaseModel):
     )
     image_url: str
     is_available: bool
+    
 
 class IngredientResponse(BaseModel):
     id: UUID

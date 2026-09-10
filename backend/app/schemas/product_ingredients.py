@@ -9,7 +9,8 @@ class ProductIngredientCreate(BaseModel):
     quantity: Decimal = Field(
         examples=[1.00]
     )
-    is_default: bool
+    is_default: bool = False
+    is_active: bool = True
 
 
 class ProductIngredientResponse(BaseModel):
@@ -25,7 +26,8 @@ class ProductIngredientResponse(BaseModel):
         examples=[1.00]
     )
     is_default: bool
-
+    is_active: bool
+    
     model_config = {
         "from_attributes": True
     }
