@@ -16,11 +16,11 @@ class ProductIngredientCreate(BaseModel):
 class ProductIngredientResponse(BaseModel):
     id: UUID
     name: str
-    description: str
+    description: str | None
     price: Decimal = Field(
         examples=[100.00]
     )
-    image_url: str
+    image_url: str | None
     is_available: bool
     quantity: Decimal = Field(
         examples=[1.00]

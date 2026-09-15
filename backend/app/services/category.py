@@ -1,20 +1,33 @@
-from app.repositories.category import CategoryRepository
-from sqlalchemy.orm import Session
-from app.schemas.category import CategoryCreate
-from app.database.models.category import Category
 from uuid import UUID
 
+from fastapi import HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database.models.category import Category
+from app.repositories.category import CategoryRepository
+from app.schemas.category import CategoryCreate
+
+
 class CategoryService:
-    def __init__(self, session: Session):
+
+    def __init__(self, session: AsyncSession):
         self.repository = CategoryRepository(session)
 
-    def get_category_by_id(self, id: UUID) -> Category | None:
-        return self.repository.get_by_id(id)
+    async def get_category_by_id(self, id: UUID) -> Category:
+        category = await self.repository.get_by_id(id)
 
-    def get_all_categories(self) -> list[Category]:
-        return self.repository.get_all()
+        if not category:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Category not found",
+            )
 
-    def create_category(self, data: CategoryCreate) -> Category:
+        return category
+
+    async def get_all_categories(self) -> list[Category]:
+        return await self.repository.get_all()
+
+    async def create_category(self, data: CategoryCreate) -> Category:
         category = Category(
             name=data.name,
             slug=data.slug,
@@ -22,4 +35,5 @@ class CategoryService:
             image_url=data.image_url,
             is_active=data.is_active,
         )
-        return self.repository.create(category)
+
+        return await self.repository.create(category)

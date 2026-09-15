@@ -15,6 +15,7 @@ from .order_items import OrderItem
 from .order_item_added_ingredients import OrderItemAddedIngredient
 from .order_status_history import OrderStatusHistory
 from .payment import Payment
+from .guests import Guest
 from .carts import Cart
 from .cart_items import CartItem
 from .cart_item_added_ingredients import CartItemAddedIngredient
@@ -46,6 +47,7 @@ __all__ = [
     "OrderItemAddedIngredient",
     "OrderStatusHistory",
     "Payment",
+    "Guest",
     "Cart",
     "CartItem",
     "CartItemAddedIngredient",
