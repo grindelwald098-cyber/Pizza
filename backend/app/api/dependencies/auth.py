@@ -19,7 +19,7 @@ async def get_current_user(
     session: AsyncSession = Depends(get_session),
 ) -> User:
     token = credentials.credentials
-
+   
     try:
         payload = decode_access_token(token)
         user_id = UUID(payload["sub"])
@@ -49,24 +49,28 @@ async def get_current_principal(
     try:
         payload = decode_access_token(credentials.credentials)
         principal_type = payload.get("type")
-        principal_id = payload.get("sub")
-
-         if principal_type == "user":
-            return UserPrincipal(
-                id=UUID(principal_id)
-            )
-
-        if principal_type == "guest":
-            return GuestPrincipal(
-                id=UUID(principal_id)
-            )
-
-    except (jwt.PyJWTError, KeyError, ValueError):
+        principal_id = UUID(payload["sub"])
+        print("principal_type", principal_type)
+        print("principal_id", principal_id)
+    except (jwt.PyJWTError, KeyError, ValueError, TypeError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-def require_permission(permission: str) -> Callable[[User], bool]:
+    if principal_type == "user":
+        return UserPrincipal(id=principal_id)
+
+    if principal_type == "guest":
+        return GuestPrincipal(id=principal_id)
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or expired token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+def require_permission(permission: str):
     pass

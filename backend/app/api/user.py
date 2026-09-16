@@ -1,27 +1,22 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.dependencies.auth import get_current_principal
 from app.database.database import get_session
-from app.schemas.user import UserCreate, UserLogin, UserResponse, TokenResponse
-from app.services.auth import AuthService
+from app.schemas.user import UserResponse
+from app.services.user import UserService
+from app.utils.principals import Principal
 
 router = APIRouter(
     prefix="/users",
-    tags=["users"],
+    tags=["Users"],
 )
 
-
-@router.post("/login", response_model=TokenResponse)
-async def login(
-    user: UserLogin, session: AsyncSession = Depends(get_session)
-) -> TokenResponse:
-    service = AuthService(session)
-    return await service.login(user)
-
-
-@router.post("/register", response_model=UserResponse)
-async def register(
-    user: UserCreate, session: AsyncSession = Depends(get_session)
+@router.get("/me", response_model=UserResponse)
+async def get_me(
+    principal: Principal = Depends(get_current_principal),
+    session: AsyncSession = Depends(get_session),
 ) -> UserResponse:
-    service = AuthService(session)
-    return await service.register(user)
+    service = UserService(session)
+    return await service.get_user_by_principal(principal)
+

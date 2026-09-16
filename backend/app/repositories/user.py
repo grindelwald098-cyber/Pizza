@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database.models.users import User
 
@@ -12,26 +13,33 @@ class UserRepository:
         self.session = session
 
     async def get_by_id(self, id: UUID) -> User | None:
-        query = select(User).where(User.id == id)
-
+        query = (
+            select(User)
+            .where(User.id == id)
+            .options(selectinload(User.cart))
+        )
         return await self.session.scalar(query)
 
     async def get_by_email(self, email: str) -> User | None:
-        query = select(User).where(User.email == email)
-
+        query = (
+            select(User)
+            .where(User.email == email)
+            .options(selectinload(User.cart))
+        )
         return await self.session.scalar(query)
 
     async def get_by_phone(self, phone: str) -> User | None:
-        query = select(User).where(User.phone == phone)
-
+        query = (
+            select(User)
+            .where(User.phone == phone)
+            .options(selectinload(User.cart))
+        )
         return await self.session.scalar(query)
 
     async def create(self, user: User) -> User:
         self.session.add(user)
-
         await self.session.commit()
-        await self.session.refresh(user)
-
+        await self.session.refresh(user, attribute_names=["cart"])
         return user
 
     async def update(self, user: User) -> User:

@@ -10,12 +10,12 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 
-def create_access_token(user_id: UUID, extra_claims: dict[str, Any] | None = None) -> str:
+def create_access_token(principal_id: UUID, principal_type: str, extra_claims: dict[str, Any] | None = None) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     payload: dict[str, Any] = {
-        "sub": str(user_id),
+        "sub": str(principal_id),
         "exp": expire,
-        "type": "access",
+        "type": principal_type,
     }
     if extra_claims:
         payload.update(extra_claims)

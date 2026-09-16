@@ -6,6 +6,7 @@ from app.repositories.user import UserRepository
 from app.utils.password import check_password_hash, hash_password
 from app.utils.jwt import create_access_token
 from app.database.models.users import User
+from app.database.models.carts import Cart
 
 
 class AuthService:
@@ -23,11 +24,11 @@ class AuthService:
             )
 
         return TokenResponse(
-            access_token=create_access_token(user.id),
+            access_token=create_access_token(user.id, "user"),
             user=UserResponse.model_validate(user, from_attributes=True),
         )
 
-    async def register(self, data: UserCreate) -> UserResponse:
+    async def register(self, data: UserCreate) -> TokenResponse:
         existing = await self.repository.get_by_email(data.email)
         if existing:
             raise HTTPException(
@@ -42,7 +43,12 @@ class AuthService:
             password_hash=hash_password(data.password),
             phone=data.phone,
             is_active=True,
+            cart=Cart(),
         )
-        created = await self.repository.create(user)
+        created_user = await self.repository.create(user)
 
-        return UserResponse.model_validate(created, from_attributes=True)
+
+        return TokenResponse(
+            access_token=create_access_token(created_user.id, "user"),
+            user=UserResponse.model_validate(created_user, from_attributes=True),
+        )
