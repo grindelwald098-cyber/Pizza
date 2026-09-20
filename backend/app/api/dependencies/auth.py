@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.database import get_session
 from app.database.models.users import User
 from app.repositories.user import UserRepository
+from app.repositories.permission import PermissionRepository
 from app.utils.jwt import decode_access_token
 from app.utils.principals import UserPrincipal, GuestPrincipal, Principal
 
@@ -73,4 +74,15 @@ async def get_current_principal(
 
 
 def require_permission(permission: str):
-    pass
+    async def checker(
+        user: User = Depends(get_current_user),
+        session: AsyncSession = Depends(get_session),
+    ) -> User:
+        permissions = await PermissionRepository(session).get_by_user_id(user.id)
+        if permission not in permissions:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to access this resource",
+            )
+        return user
+    return checker

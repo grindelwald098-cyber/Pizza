@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 
 from app.api.dependencies.auth import get_current_principal
 from app.database.database import get_session
@@ -20,3 +21,13 @@ async def get_cart(
 ) -> CartResponse:
     service = CartService(session)
     return await service.get_cart_by_principal(principal)
+
+
+@router.post("/add-product/{product_id}", response_model=CartResponse)
+async def add_product_to_cart(
+    product_id: UUID,
+    principal: Principal = Depends(get_current_principal),
+    session: AsyncSession = Depends(get_session),
+) -> CartResponse:
+    service = CartService(session)
+    return await service.add_product_to_cart(principal.id, product_id)

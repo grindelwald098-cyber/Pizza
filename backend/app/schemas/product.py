@@ -11,6 +11,17 @@ from app.schemas.product_dough_types import ProductDoughTypeCreate
 from app.schemas.product_ingredients import ProductIngredientResponse
 
 
+class CartItem(BaseModel):
+    product: ProductResponse
+    quantity: int
+    unit_price: Decimal = Field(
+        examples=[100.00]
+    )
+
+    model_config = {
+        "from_attributes": True
+    }
+
 class ProductCreate(BaseModel):
     category_id: UUID
     name: str
