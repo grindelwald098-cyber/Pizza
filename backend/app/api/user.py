@@ -12,6 +12,7 @@ router = APIRouter(
     tags=["Users"],
 )
 
+
 @router.get("/me", response_model=UserResponse)
 async def get_me(
     principal: Principal = Depends(get_current_principal),
@@ -19,4 +20,3 @@ async def get_me(
 ) -> UserResponse:
     service = UserService(session)
     return await service.get_user_by_principal(principal)
-

@@ -1,13 +1,15 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from app.schemas.cart import CartResponse
-from app.schemas.guest import GuestResponse
+
 
 class UserLogin(BaseModel):
     email: str
     password: str
+
 
 class UserResponse(BaseModel):
     id: UUID
@@ -22,11 +24,13 @@ class UserResponse(BaseModel):
         "from_attributes": True
     }
 
-class TokenResponse(BaseModel):
+
+class UserTokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    user: UserResponse | None = None
-    guest: GuestResponse | None = None
+    type: Literal["user"] = "user"
+    user: UserResponse
+
 
 class UserCreate(BaseModel):
     email: str
@@ -35,11 +39,13 @@ class UserCreate(BaseModel):
     password: str
     phone: str
 
+
 class UserUpdate(BaseModel):
     email: str
     first_name: str
-    last_name: str 
+    last_name: str
     phone: str
+
 
 class UserUpdatePassword(BaseModel):
     password: str

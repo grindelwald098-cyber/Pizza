@@ -51,8 +51,6 @@ async def get_current_principal(
         payload = decode_access_token(credentials.credentials)
         principal_type = payload.get("type")
         principal_id = UUID(payload["sub"])
-        print("principal_type", principal_type)
-        print("principal_id", principal_id)
     except (jwt.PyJWTError, KeyError, ValueError, TypeError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

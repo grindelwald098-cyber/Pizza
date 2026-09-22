@@ -1,12 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 
-from app.schemas.user import UserLogin, UserResponse, UserCreate, TokenResponse
+from app.schemas.user import UserLogin, UserCreate, UserTokenResponse
 from app.repositories.user import UserRepository
 from app.utils.password import check_password_hash, hash_password
 from app.utils.jwt import create_access_token
 from app.database.models.users import User
 from app.database.models.carts import Cart
+from app.services.user import to_user_response
 
 
 class AuthService:
@@ -14,7 +15,7 @@ class AuthService:
     def __init__(self, session: AsyncSession):
         self.repository = UserRepository(session)
 
-    async def login(self, data: UserLogin) -> TokenResponse:
+    async def login(self, data: UserLogin) -> UserTokenResponse:
         user = await self.repository.get_by_email(data.email)
 
         if not user or not check_password_hash(data.password, user.password_hash):
@@ -23,12 +24,12 @@ class AuthService:
                 detail="Invalid email or password",
             )
 
-        return TokenResponse(
+        return UserTokenResponse(
             access_token=create_access_token(user.id, "user"),
-            user=UserResponse.model_validate(user, from_attributes=True),
+            user=to_user_response(user),
         )
 
-    async def register(self, data: UserCreate) -> TokenResponse:
+    async def register(self, data: UserCreate) -> UserTokenResponse:
         existing = await self.repository.get_by_email(data.email)
         if existing:
             raise HTTPException(
@@ -47,8 +48,7 @@ class AuthService:
         )
         created_user = await self.repository.create(user)
 
-
-        return TokenResponse(
+        return UserTokenResponse(
             access_token=create_access_token(created_user.id, "user"),
-            user=UserResponse.model_validate(created_user, from_attributes=True),
+            user=to_user_response(created_user),
         )

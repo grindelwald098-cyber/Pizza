@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database.models.guests import Guest
+from app.repositories.cart import CartRepository
 
 
 class GuestRepository:
@@ -15,7 +16,7 @@ class GuestRepository:
         query = (
             select(Guest)
             .where(Guest.id == id)
-            .options(selectinload(Guest.cart))
+            .options(selectinload(Guest.cart).options(*CartRepository._load_options()))
         )
         return await self.session.scalar(query)
 
