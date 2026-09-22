@@ -3,23 +3,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories.guest import GuestRepository
 from app.database.models.guests import Guest
 from app.database.models.carts import Cart
-from app.schemas.guest import GuestResponse
-from app.schemas.user import TokenResponse
+from app.schemas.guest import GuestResponse, GuestTokenResponse
 from app.utils.principals import GuestPrincipal, Principal
 from app.utils.jwt import create_access_token
 from fastapi import HTTPException
+
 
 class GuestService:
     def __init__(self, session: AsyncSession):
         self.repository = GuestRepository(session)
 
-    async def register(self) -> TokenResponse:
+    async def register(self) -> GuestTokenResponse:
         guest = Guest(
             cart=Cart(),
         )
         created_guest = await self.repository.create(guest)
-
-        return TokenResponse(
+        return GuestTokenResponse(
             access_token=create_access_token(created_guest.id, "guest"),
             guest=GuestResponse.model_validate(created_guest, from_attributes=True),
         )
