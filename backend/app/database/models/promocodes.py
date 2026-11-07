@@ -1,15 +1,15 @@
-from sqlalchemy import UUID, Integer, String, Text, Boolean, Numeric, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
-from decimal import Decimal
-from app.database.database import Base
-import uuid
 from datetime import datetime
+from decimal import Decimal
+
+from sqlalchemy import Boolean, DateTime, Integer, Numeric, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.database.database import Base
 
 
 class Promocode(Base):
     __tablename__ = "promocodes"
     
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     code: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     discount_value: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
     discount_type: Mapped[str] = mapped_column(String(255), nullable=False)

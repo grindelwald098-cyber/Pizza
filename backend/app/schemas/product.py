@@ -9,18 +9,8 @@ from app.schemas.product_ingredients import ProductIngredientCreate
 from app.schemas.dough_type import DoughTypeResponse
 from app.schemas.product_dough_types import ProductDoughTypeCreate
 from app.schemas.product_ingredients import ProductIngredientResponse
+from app.schemas.product_addons import ProductAddonResponse
 
-
-class CartItem(BaseModel):
-    product: ProductResponse
-    quantity: int
-    unit_price: Decimal = Field(
-        examples=[100.00]
-    )
-
-    model_config = {
-        "from_attributes": True
-    }
 
 class ProductCreate(BaseModel):
     category_id: UUID
@@ -52,9 +42,18 @@ class ProductResponse(BaseModel):
     sizes: list[ProductSizeResponse]
     dough_types: list[DoughTypeResponse] | None = None
     ingredients: list[ProductIngredientResponse]
+    addons: list[ProductAddonResponse] = []
     model_config = {
         "from_attributes": True
     }
+
+
+class ProductListResponse(BaseModel):
+    items: list[ProductResponse]
+    total: int
+    page: int
+    page_size: int
+
 
 class ProductUpdate(BaseModel):
     name: str | None = None

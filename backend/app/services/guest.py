@@ -1,12 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories.guest import GuestRepository
-from app.database.models.guests import Guest
 from app.database.models.carts import Cart
+from app.database.models.guests import Guest
+from app.exceptions import BadRequestError, NotFoundError
+from app.repositories.guest import GuestRepository
 from app.schemas.guest import GuestResponse, GuestTokenResponse
-from app.utils.principals import GuestPrincipal, Principal
 from app.utils.jwt import create_access_token
-from fastapi import HTTPException
+from app.utils.principals import GuestPrincipal, Principal
 
 
 class GuestService:
@@ -27,6 +27,6 @@ class GuestService:
         if isinstance(principal, GuestPrincipal):
             guest = await self.repository.get_by_id(principal.id)
             if not guest:
-                raise HTTPException(status_code=404, detail="Guest not found")
+                raise NotFoundError("Guest not found")
             return GuestResponse.model_validate(guest, from_attributes=True)
-        raise HTTPException(status_code=400, detail="Invalid principal type")
+        raise BadRequestError("Invalid principal type")

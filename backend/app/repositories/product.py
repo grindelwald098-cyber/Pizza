@@ -1,70 +1,84 @@
+from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.database.models.product import Product
+from app.database.models.product_addons import ProductAddon
 from app.database.models.product_dough import ProductDough
 from app.database.models.product_ingredients import ProductIngredient
 from app.database.models.product_sizes import ProductSize
+from app.exceptions import InternalError
+from app.repositories.base import SoftDeleteRepository
 
 
-class ProductRepository:
-
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class ProductRepository(SoftDeleteRepository[Product]):
+    model = Product
 
     @staticmethod
-    def _load_options():
+    def _load_options() -> tuple[Any, ...]:
         return (
             selectinload(Product.category),
             selectinload(Product.sizes).selectinload(ProductSize.size),
             selectinload(Product.doughs).selectinload(ProductDough.dough_type),
-            selectinload(Product.ingredients).selectinload(ProductIngredient.ingredient),
+            selectinload(Product.ingredients).selectinload(
+                ProductIngredient.ingredient
+            ),
+            selectinload(Product.addons).selectinload(ProductAddon.ingredient),
         )
 
-    async def get_all(self) -> list[Product]:
-        query = (
+    @staticmethod
+    def _cart_config_options() -> tuple[Any, ...]:
+        return (
+            selectinload(Product.sizes).selectinload(ProductSize.size),
+            selectinload(Product.doughs).selectinload(ProductDough.dough_type),
+            selectinload(Product.addons).selectinload(ProductAddon.ingredient),
+        )
+
+    async def list_page(
+        self,
+        *,
+        category_id: UUID | None,
+        limit: int,
+        offset: int,
+    ) -> tuple[list[Product], int]:
+        filters = [Product.is_active.is_(True)]
+        if category_id is not None:
+            filters.append(Product.category_id == category_id)
+
+        total = await self.session.scalar(
+            select(func.count()).select_from(Product).where(*filters)
+        )
+        statement = (
             select(Product)
-            .where(Product.is_active.is_(True))
+            .where(*filters)
+            .order_by(Product.name)
+            .limit(limit)
+            .offset(offset)
             .options(*self._load_options())
         )
+        products = await self._list(statement)
+        return products, int(total or 0)
 
-        result = await self.session.scalars(query)
-
-        return list(result.all())
-
-    async def get_by_id(self, id: UUID) -> Product | None:
-        query = (
-            select(Product)
-            .where(Product.id == id, Product.is_active.is_(True))
-            .options(*self._load_options())
+    async def get_by_id(self, entity_id: UUID) -> Product | None:
+        statement = self._select().where(
+            Product.id == entity_id,
+            Product.is_active.is_(True),
         )
+        return await self.session.scalar(statement)
 
-        return await self.session.scalar(query)
+    async def get_by_id_for_cart(self, entity_id: UUID) -> Product | None:
+        statement = (
+            select(Product)
+            .where(Product.id == entity_id, Product.is_active.is_(True))
+            .options(*self._cart_config_options())
+        )
+        return await self.session.scalar(statement)
 
     async def create(self, product: Product) -> Product:
-        self.session.add(product)
-
-        await self.session.commit()
-        await self.session.refresh(product)
-
-        return product
-
-    async def update(self, product: Product) -> Product:
-        self.session.add(product)
-
-        await self.session.commit()
-        await self.session.refresh(product)
-
-        return product
-
-    async def delete(self, product: Product) -> None:
-        try:
-            self.session.add(product)
-            await self.session.commit()
-
-        except Exception:
-            await self.session.rollback()
-            raise
+        await self._persist(product)
+        loaded = await self.get_by_id(product.id)
+        if loaded is None:
+            raise InternalError("Product was created but could not be loaded")
+        return loaded

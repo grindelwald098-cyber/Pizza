@@ -159,25 +159,20 @@ def seed_reference(session) -> dict:
 
 
 def pizza_sizes(ref: dict, small: str, medium: str, large: str) -> list[ProductSize]:
+    rows = [
+        ("Маленькая", small, True),
+        ("Средняя", medium, False),
+        ("Большая", large, False),
+    ]
     return [
         ProductSize(
             id=uid(),
-            size_id=ref["sizes"]["Маленькая"].id,
-            price=Decimal(small),
+            size_id=ref["sizes"][name].id,
+            price=Decimal(price),
             is_available=True,
-        ),
-        ProductSize(
-            id=uid(),
-            size_id=ref["sizes"]["Средняя"].id,
-            price=Decimal(medium),
-            is_available=True,
-        ),
-        ProductSize(
-            id=uid(),
-            size_id=ref["sizes"]["Большая"].id,
-            price=Decimal(large),
-            is_available=True,
-        ),
+            is_default=is_default,
+        )
+        for name, price, is_default in rows
     ]
 
 
@@ -431,6 +426,7 @@ def seed_products(session, ref: dict) -> None:
                         size_id=ref["sizes"]["Стандарт"].id,
                         price=Decimal(price),
                         is_available=True,
+                        is_default=True,
                     )
                 ],
             )
@@ -459,6 +455,7 @@ def seed_products(session, ref: dict) -> None:
                         size_id=ref["sizes"][size_name].id,
                         price=Decimal(price),
                         is_available=True,
+                        is_default=size_name == "330 мл",
                     )
                     for size_name, price in zip(drink_size_names, prices)
                 ],
@@ -486,6 +483,7 @@ def seed_products(session, ref: dict) -> None:
                         size_id=ref["sizes"]["Стандарт"].id,
                         price=Decimal(price),
                         is_available=True,
+                        is_default=True,
                     )
                 ],
             )
@@ -514,6 +512,7 @@ def seed_products(session, ref: dict) -> None:
                         size_id=ref["sizes"]["Стандарт"].id,
                         price=Decimal(price),
                         is_available=True,
+                        is_default=True,
                     )
                 ],
             )

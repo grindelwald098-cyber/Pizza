@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.database import get_session
-from app.schemas.product import ProductCreate, ProductResponse, ProductUpdate
+from app.schemas.product import ProductCreate, ProductListResponse, ProductResponse, ProductUpdate
 from app.schemas.product_dough_types import ProductDoughTypeCreate
 from app.schemas.product_ingredients import ProductIngredientCreate
 from app.schemas.product_sizes import ProductSizeCreate
@@ -24,12 +24,19 @@ async def create_product(
     return await service.create_product(data)
 
 
-@router.get("/", response_model=list[ProductResponse])
+@router.get("/", response_model=ProductListResponse)
 async def get_products(
+    category_id: UUID | None = None,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
     session: AsyncSession = Depends(get_session),
-) -> list[ProductResponse]:
+) -> ProductListResponse:
     service = ProductService(session)
-    return await service.get_all_products()
+    return await service.get_products(
+        category_id=category_id,
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.get("/{id}", response_model=ProductResponse)

@@ -1,10 +1,10 @@
 from sqlalchemy import UUID, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-from app.database.database import Base
+from app.database.database import AssociationBase
 import uuid
 
 
-class RolePermission(Base):
+class RolePermission(AssociationBase):
     __tablename__ = "role_permissions"
 
     role_id: Mapped[uuid.UUID] = mapped_column(

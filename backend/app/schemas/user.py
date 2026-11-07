@@ -3,8 +3,6 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from app.schemas.cart import CartResponse
-
 
 class UserLogin(BaseModel):
     email: str
@@ -19,7 +17,7 @@ class UserResponse(BaseModel):
     phone: str
     created_at: datetime
     updated_at: datetime
-    cart: CartResponse | None = None
+
     model_config = {
         "from_attributes": True
     }

@@ -8,7 +8,6 @@ import uuid
 class CartItemAddedIngredient(Base):
     __tablename__ = "cart_item_added_ingredients"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     cart_item_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("cart_items.id"), nullable=False
     )

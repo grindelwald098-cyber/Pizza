@@ -1,10 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException
 
 from app.database.models.users import User
+from app.exceptions import ForbiddenError, NotFoundError
 from app.repositories.user import UserRepository
 from app.schemas.user import UserResponse
-from app.services.cart import to_cart_response
 from app.utils.principals import Principal, UserPrincipal
 
 
@@ -17,7 +16,6 @@ def to_user_response(user: User) -> UserResponse:
         phone=user.phone,
         created_at=user.created_at,
         updated_at=user.updated_at,
-        cart=to_cart_response(user.cart) if user.cart is not None else None,
     )
 
 
@@ -29,9 +27,8 @@ class UserService:
         if isinstance(principal, UserPrincipal):
             user = await self.user_repository.get_by_id(principal.id)
             if not user:
-                raise HTTPException(status_code=404, detail="User not found")
+                raise NotFoundError("User not found")
             return to_user_response(user)
-        raise HTTPException(
-            status_code=403,
-            detail="Guest principal is not allowed to access this resource",
+        raise ForbiddenError(
+            "Guest principal is not allowed to access this resource",
         )

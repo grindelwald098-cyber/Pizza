@@ -1,33 +1,24 @@
 from uuid import UUID
 
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database.models.guests import Guest
+from app.repositories.base import BaseRepository
 from app.repositories.cart import CartRepository
 
 
-class GuestRepository:
-    def __init__(self, session: AsyncSession):
-        self.session = session
+class GuestRepository(BaseRepository[Guest]):
+    model = Guest
 
-    async def get_by_id(self, id: UUID) -> Guest | None:
-        query = (
+    async def get_by_id(self, entity_id: UUID) -> Guest | None:
+        statement = (
             select(Guest)
-            .where(Guest.id == id)
-            .options(selectinload(Guest.cart).options(*CartRepository._load_options()))
+            .where(Guest.id == entity_id)
+            .options(
+                selectinload(Guest.cart).options(
+                    *CartRepository._load_options(),
+                )
+            )
         )
-        return await self.session.scalar(query)
-
-    async def create(self, guest: Guest) -> Guest:
-        self.session.add(guest)
-        await self.session.commit()
-        await self.session.refresh(guest, attribute_names=["cart"])
-        return guest
-
-    async def update(self, guest: Guest) -> Guest:
-        self.session.add(guest)
-        await self.session.commit()
-        await self.session.refresh(guest, attribute_names=["cart"])
-        return guest
+        return await self.session.scalar(statement)

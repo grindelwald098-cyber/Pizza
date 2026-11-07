@@ -17,4 +17,4 @@ async def create_category(
     data: CategoryCreate, session: AsyncSession = Depends(get_session)
 ) -> Category:
     service = CategoryService(session)
-    return await service.create_category(data)
+    return await service.create(data)

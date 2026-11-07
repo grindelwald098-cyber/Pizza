@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.database import get_session
 from app.database.models.dough_type import DoughType
 from app.schemas.dough_type import DoughTypeCreate, DoughTypeResponse
-from app.services.dough_type import DoughTypeServices
+from app.services.dough_type import DoughTypeService
 
 router = APIRouter(
     prefix="/dough_types",
@@ -18,7 +18,7 @@ router = APIRouter(
 async def get_dough_types(
     session: AsyncSession = Depends(get_session),
 ) -> list[DoughType]:
-    service = DoughTypeServices(session)
+    service = DoughTypeService(session)
     return await service.get_all()
 
 
@@ -26,7 +26,7 @@ async def get_dough_types(
 async def get_dough_type_by_id(
     id: UUID, session: AsyncSession = Depends(get_session)
 ) -> DoughType:
-    service = DoughTypeServices(session)
+    service = DoughTypeService(session)
     return await service.get_by_id(id)
 
 
@@ -34,7 +34,7 @@ async def get_dough_type_by_id(
 async def delete_dough_type(
     id: UUID, session: AsyncSession = Depends(get_session)
 ) -> None:
-    service = DoughTypeServices(session)
+    service = DoughTypeService(session)
     await service.delete(id)
 
 
@@ -42,5 +42,5 @@ async def delete_dough_type(
 async def create_dough_type(
     data: DoughTypeCreate, session: AsyncSession = Depends(get_session)
 ) -> DoughType:
-    service = DoughTypeServices(session)
+    service = DoughTypeService(session)
     return await service.create(data)
