@@ -6,3 +6,9 @@ __pycache__/
 .env
 .mypy_cache/
 .ruff_cache/
+
+# Local pizza photos (keep folder structure via .gitkeep)
+media/pizzas/**/*.jpg
+media/pizzas/**/*.jpeg
+media/pizzas/**/*.png
+media/pizzas/**/*.webp
