@@ -10,6 +10,7 @@ class ProductSizeCreate(BaseModel):
     )
     is_available: bool
     is_default: bool = False
+    image_url: str | None = None
 
 class ProductSizeResponse(BaseModel):
     id:UUID
@@ -22,6 +23,7 @@ class ProductSizeResponse(BaseModel):
     )
     is_available: bool
     is_default: bool
+    image_url: str | None = None
 
     model_config = {
         "from_attributes": True

@@ -21,6 +21,7 @@ class CartSizeResponse(BaseModel):
     value: int
     unit: str
     sort_order: int
+    image_url: str | None = None
 
 
 class CartDoughResponse(BaseModel):

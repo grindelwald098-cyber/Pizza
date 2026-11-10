@@ -60,12 +60,14 @@ class SizeLink(ProductLink[ProductSize, ProductSizeCreate]):
             price=spec.price,
             is_available=spec.is_available,
             is_default=spec.is_default,
+            image_url=spec.image_url,
         )
 
     def apply(self, row: ProductSize, spec: ProductSizeCreate) -> None:
         row.price = spec.price
         row.is_available = spec.is_available
         row.is_default = spec.is_default
+        row.image_url = spec.image_url
 
     def retire(self, row: ProductSize) -> bool:
         row.is_available = False

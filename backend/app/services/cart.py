@@ -70,12 +70,20 @@ def to_cart_extra_response(extra: CartItemAddedIngredient) -> CartExtraResponse:
 def to_cart_size_response(item: CartItem) -> CartSizeResponse | None:
     if item.size is None:
         return None
+
+    image_url = None
+    for product_size in item.product.sizes:
+        if product_size.size_id == item.size_id:
+            image_url = product_size.image_url
+            break
+
     return CartSizeResponse(
         id=item.size.id,
         name=item.size.name,
         value=item.size.value,
         unit=item.size.unit,
         sort_order=item.size.sort_order,
+        image_url=image_url,
     )
 
 

@@ -10,6 +10,7 @@ from app.database.models.cart_item_added_ingredients import (
 from app.database.models.cart_items import CartItem
 from app.database.models.carts import Cart
 from app.database.models.guests import Guest
+from app.database.models.product import Product
 from app.database.models.users import User
 from app.repositories.base import BaseRepository
 
@@ -24,7 +25,9 @@ class CartRepository(BaseRepository[Cart]):
             selectinload(Cart.items)
             .selectinload(CartItem.added_ingredients)
             .selectinload(CartItemAddedIngredient.ingredient),
-            selectinload(Cart.items).selectinload(CartItem.product),
+            selectinload(Cart.items)
+            .selectinload(CartItem.product)
+            .selectinload(Product.sizes),
             selectinload(Cart.items).selectinload(CartItem.size),
             selectinload(Cart.items).selectinload(CartItem.dough_type),
         )

@@ -1,5 +1,5 @@
 from decimal import Decimal
-from sqlalchemy import UUID, Boolean, ForeignKey, Numeric
+from sqlalchemy import UUID, Boolean, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database.database import Base
 import uuid
@@ -20,6 +20,7 @@ class ProductSize(Base):
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("0.00"))
     is_available: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
 
     product: Mapped["Product"] = relationship("Product", back_populates="sizes")
     size: Mapped["Size"] = relationship("Size")
