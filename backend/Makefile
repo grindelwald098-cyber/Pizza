@@ -55,6 +55,11 @@ help:
 	@echo "  make db-history       Show migration history"
 	@echo "  make db-heads         Show migration heads"
 	@echo ""
+	@echo "Docker:"
+	@echo "  make docker-up        Start Postgres + S3 storage"
+	@echo "  make docker-down      Stop Docker services"
+	@echo "  make docker-logs      Tail Docker logs"
+	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean            Remove Python cache files"
 	@echo ""
@@ -144,6 +149,21 @@ db-history:
 db-heads:
 	$(ALEMBIC) heads
 
+
+# ============================================================
+# DOCKER
+# ============================================================
+
+.PHONY: docker-up docker-down docker-logs
+
+docker-up:
+	docker compose up -d
+
+docker-down:
+	docker compose down
+
+docker-logs:
+	docker compose logs -f
 
 # ============================================================
 # CLEANUP
