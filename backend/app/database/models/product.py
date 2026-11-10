@@ -14,7 +14,7 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
     base_price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False, default=Decimal("0.00"))
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     is_available: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)

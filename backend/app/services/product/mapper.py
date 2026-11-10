@@ -21,6 +21,7 @@ def to_product_size_response(product_size: ProductSize) -> ProductSizeResponse:
         price=product_size.price,
         is_available=product_size.is_available,
         is_default=product_size.is_default,
+        image_url=product_size.image_url,
     )
 
 
